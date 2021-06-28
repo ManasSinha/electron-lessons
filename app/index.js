@@ -7,8 +7,8 @@ const io = require( './main/io' );
 // open a window
 const openWindow = () => {
     const win = new BrowserWindow( {
-        width: 800,
-        height: 500,
+        // width: 800,
+        // height: 500, 
         webPreferences: {
             nodeIntegration: true,
         },

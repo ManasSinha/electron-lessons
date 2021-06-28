@@ -2,6 +2,7 @@ const { ipcRenderer } = require( 'electron' );
 var Papa = require('papaparse');
 const csv = require('csvtojson');
 var fs = require('fs');
+var strange = require('../../strange/strangePlot');
 
 // copy file
 window.copyFile = function ( event, itemId ) {
@@ -50,6 +51,7 @@ window.analyseFile = function ( itemId ) {
     // ipcRenderer.send( 'app:on-file-open', { id: itemId, filepath } );
 
     var content = fs.readFileSync(filepath, "utf8");
+    var dataArray = null;
 
     Papa.parse(content, {
         delimiter:',',
@@ -58,6 +60,12 @@ window.analyseFile = function ( itemId ) {
         skipEmptyLines: true,        
         complete: function(results) {
             console.log(results);
+            dataArray = results.data[0];
+
+            const fileDetails = document.getElementById( 'fileDetails' );
+            // fileDetails.innerHTML = "working on it";
+
+            fileDetails.innerHTML = strange.callStrange(results);
         }
     });
 
@@ -67,7 +75,7 @@ window.analyseFile = function ( itemId ) {
     //     console.log(jsonObj);
     //     })
 
-    
+
 
 
 

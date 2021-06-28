@@ -15,7 +15,7 @@ body {
   display: flex; }
   .app__uploader {
     flex: 0 0 auto;
-    width: 50vw;
+    width: 25vw;
     display: flex;
     flex-direction: column; }
     .app__uploader--activate {
@@ -51,7 +51,7 @@ body {
         cursor: pointer; }
   .app__files {
     flex: 0 0 auto;
-    width: 50vw;
+    width: 25vw;
     background-color: #ddd;
     padding: 20px;
     overflow-x: hidden;
@@ -88,3 +88,15 @@ body {
         cursor: pointer; }
       .app__files__item:not(:last-child) {
         margin-bottom: 20px; }
+  .app__result {
+    flex: 0 0 auto;
+    width: 50vw;
+    background-color: #c2bebe;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-size: 14px;
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 0; }
