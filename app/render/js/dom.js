@@ -1,4 +1,7 @@
 const { ipcRenderer } = require( 'electron' );
+var Papa = require('papaparse');
+const csv = require('csvtojson');
+var fs = require('fs');
 
 // copy file
 window.copyFile = function ( event, itemId ) {
@@ -34,6 +37,42 @@ window.openFile = function ( itemId ) {
     ipcRenderer.send( 'app:on-file-open', { id: itemId, filepath } );
 };
 
+window.analyseFile = function ( itemId ) {
+
+    // get path of the file
+    const itemNode = document.getElementById( itemId );
+    const filepath = itemNode.getAttribute( 'data-filepath' );
+
+    console.log('filepath', filepath, Papa);
+
+
+    // send event to the main thread
+    // ipcRenderer.send( 'app:on-file-open', { id: itemId, filepath } );
+
+    var content = fs.readFileSync(filepath, "utf8");
+
+    Papa.parse(content, {
+        delimiter:',',
+        header: false,
+        dynamicTyping: true,
+        skipEmptyLines: true,        
+        complete: function(results) {
+            console.log(results);
+        }
+    });
+
+    // csv()
+    // .fromFile(filepath)
+    // .then((jsonObj)=>{
+    //     console.log(jsonObj);
+    //     })
+
+    
+
+
+
+};
+
 exports.displayFiles = ( files = [] ) => {
     const fileListElem = document.getElementById( 'filelist' );
     fileListElem.innerHTML = '';
@@ -52,6 +91,7 @@ exports.displayFiles = ( files = [] ) => {
             </div>
             <img onclick='deleteFile("${ file.name }")' src='../assets/delete.svg' class='app__files__item__delete'/>
             <img onclick='openFile("${ file.name }")' src='../assets/open.svg' class='app__files__item__open'/>
+            <img onclick='analyseFile("${ file.name }")' src='../assets/open.svg' class='app__files__item__open'/>
         `;
 
         fileListElem.appendChild( itemDomElem );
