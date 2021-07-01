@@ -44,7 +44,7 @@ window.analyseFile = function ( itemId ) {
     const itemNode = document.getElementById( itemId );
     const filepath = itemNode.getAttribute( 'data-filepath' );
 
-    console.log('filepath', filepath, Papa);
+    // console.log('filepath', filepath, Papa);
 
 
     // send event to the main thread
@@ -59,11 +59,11 @@ window.analyseFile = function ( itemId ) {
         dynamicTyping: true,
         skipEmptyLines: true,        
         complete: function(results) {
-            console.log(results);
+            // console.log(results);
             dataArray = results.data[0];
 
             const fileDetails = document.getElementById( 'fileDetails' );
-            // fileDetails.innerHTML = "working on it";
+            fileDetails.innerHTML = "working on it..";
 
             fileDetails.innerHTML = strange.callStrange(results);
         }

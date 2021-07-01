@@ -54,31 +54,40 @@ exports.callStrange = function (obj) {
     var verticalSeries = {};
     var horizontalSeries = {};
 
+    returnArr.push('<br>Starting Analyzing Data Per Horizontal Series');
     result.data[0].map((eachVSeries, i) => {
+        returnArr.push('<br>For Vertical Series : ' + i);
         var seriesMeta =
         {
             allEntries: matrix.getCol(result.data, i)
         }
         seriesMeta = doSomeMagic(seriesMeta)
+        // reportTheMagic(seriesMeta);
+        returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
 
         verticalSeries[i] = seriesMeta;
     });
 
     //for horizontal series do a random sampling if series count is more that 100
+    returnArr.push('<p><br>Starting Analyzing Data Per Horizontal Series');
     var sampleIndex = _.range(0,result.data.length);
     if(sampleIndex.length > 100)
     {
         // sampleIndex = basic.random(sampleIndex, 100, false);
         sampleIndex = _.sample(sampleIndex, 100);
+        returnArr.push('Sampling the collection to 100 as it is ' + result.data.length);
     }
     
     for (let index = 0; index < sampleIndex.length; index++) 
     {        
-        var seriesMeta =
+        returnArr.push('<br>For Horizontal Series : ' + index + ', which is index of ' + sampleIndex[index] + ' in full data lake');
+        var seriesMeta = 
         {
             allEntries: result.data[sampleIndex[index]]
         }
         seriesMeta = doSomeMagic(seriesMeta)
+        //  returnArr = reportTheMagic(seriesMeta);
+        returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
 
         horizontalSeries[index] = seriesMeta;
     };
@@ -141,11 +150,22 @@ function doSomeMagic(seriesMeta)
     var arrLReg = _.map( seriesMeta.numericValues, function(num) {
         return statistic.linearRegression(arrX,arrY)(num);
     })
-    seriesMeta.arrX = arrX;
-    seriesMeta.arrY = arrY;
-    seriesMeta.arrLReg = arrLReg;
-    seriesMeta.rSquared = statistic.rSquared(seriesMeta.numericValues, seriesMeta.arrLReg);
+    // seriesMeta.arrX = arrX;
+    // seriesMeta.arrY = arrY;
+    // seriesMeta.arrLReg = arrLReg;
+    seriesMeta.rSquared = statistic.rSquared(seriesMeta.numericValues, arrLReg);
 
 
     return seriesMeta;
+}
+
+function reportTheMagic(seriesMeta)
+{
+    var returnArr = [];
+    Object.keys(seriesMeta).map((eachProp, i) => 
+    {
+        if(_.isArray(seriesMeta[eachProp]) === false)
+            returnArr.push('&nbsp>&nbsp' + eachProp + ' : ' + seriesMeta[eachProp]);
+    })
+    return returnArr;
 }
