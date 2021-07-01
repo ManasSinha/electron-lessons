@@ -164,8 +164,28 @@ function reportTheMagic(seriesMeta)
     var returnArr = [];
     Object.keys(seriesMeta).map((eachProp, i) => 
     {
-        if(_.isArray(seriesMeta[eachProp]) === false)
-            returnArr.push('&nbsp>&nbsp' + eachProp + ' : ' + seriesMeta[eachProp]);
+        if(_.isArray(seriesMeta[eachProp]) === false && _.isObject(seriesMeta[eachProp]) === false)
+        {
+            returnArr.push('&nbsp&nbsp>&nbsp' + eachProp + ' : ' + seriesMeta[eachProp]);
+        }
+        else if(_.isArray(seriesMeta[eachProp]) === true)
+        {
+            returnArr.push('&nbsp&nbsp>&nbsp' + eachProp + ' : count ' + seriesMeta[eachProp].length + ', showing top 10 items');
+            _.first(seriesMeta[eachProp], 10).map((eachPropItem, j) =>
+            {
+                returnArr.push('&nbsp&nbsp&nbsp&nbsp|&nbsp' + eachPropItem);
+            });
+        }
+        else if(_.isObject(seriesMeta[eachProp]) === true)
+        {
+            returnArr.push('&nbsp&nbsp>&nbsp' + eachProp + '  : count ' + Object.keys(seriesMeta[eachProp]).length + ', showing top 10 items');
+            
+            _.first(Object.keys(seriesMeta[eachProp]), 10).map((eachPropItem, j) =>
+            {
+                returnArr.push('&nbsp&nbsp&nbsp&nbsp|&nbsp' + eachPropItem + ' : ' + seriesMeta[eachProp][eachPropItem]);
+            });
+        }
     })
+    
     return returnArr;
 }
