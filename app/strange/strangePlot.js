@@ -54,24 +54,25 @@ exports.callStrange = function (obj) {
     var verticalSeries = [];
     var horizontalSeries = [];
 
-    returnArr.push('<br>Starting Analyzing Data Per Horizontal Series');
+    returnArr.push('<br>Starting Analyzing Data Per Vertical Series');
     result.data[0].map((eachVSeries, i) => {
-        returnArr.push('<br>For Vertical Series : ' + i);
+        
         var seriesMeta =
         {
             allEntries: matrix.getCol(result.data, i),
-            index: i
+            index: i,
+            dataSeriesIndex: i
         }
         seriesMeta = doSomeMagic(seriesMeta)
         // reportTheMagic(seriesMeta);
-        returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
+        // returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
 
         verticalSeries[i] = seriesMeta;
     });
 
     //for horizontal series do a random sampling if series count is more that 100
-    returnArr.push('<p><br>--------------------------------------------------------------------------------');
-    returnArr.push('<p><br>Starting Analyzing Data Per Horizontal Series');
+    
+    returnArr.push('<br>Starting Analyzing Data Per Horizontal Series');
     var sampleIndex = _.range(0,result.data.length);
     if(sampleIndex.length > 100)
     {        
@@ -82,15 +83,16 @@ exports.callStrange = function (obj) {
     
     for (let index = 0; index < sampleIndex.length; index++) 
     {        
-        returnArr.push('<br>For Horizontal Series : ' + index + ', which is index of ' + sampleIndex[index] + ' in full data lake');
+        
         var seriesMeta = 
         {
             allEntries: result.data[sampleIndex[index]],
-            index: sampleIndex[index]
+            index: index,
+            dataSeriesIndex: sampleIndex[index]
         }
         seriesMeta = doSomeMagic(seriesMeta)
         //  returnArr = reportTheMagic(seriesMeta);
-        returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
+        // returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
 
         horizontalSeries[index] = seriesMeta;
     };
@@ -114,7 +116,8 @@ exports.callStrange = function (obj) {
 
     verticalSeries.map(seriesMeta => 
         {
-            var horizontalPerspective = _.countBy(horizontalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.index ? 'Yes': 'No';});
+            returnArr.push('<br>For Vertical Series : ' + seriesMeta.index);
+            var horizontalPerspective = _.countBy(horizontalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.dataSeriesIndex ? 'Yes': 'No';});
 
             seriesMeta.Strange_IsObservationMeta = (seriesMeta.Strange_IsString && 
                 ( 
@@ -131,12 +134,33 @@ exports.callStrange = function (obj) {
                         ||  (horizontalPerspective.No * 100) / horizontalPerspective.Yes > 95
                     )
 
-            // returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
+            returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
         });
 
 
-
-
+        returnArr.push('<p><br>--------------------------------------------------------------------------------<p>');
+        horizontalSeries.map(seriesMeta => 
+            {
+                returnArr.push('<br>For Horizontal Series : ' + seriesMeta.index + ', which is index of ' + sampleIndex.dataSeriesIndex + ' in full data lake');
+                var verticalPerspective = _.countBy(verticalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.dataSeriesIndex ? 'Yes': 'No';});
+    
+                seriesMeta.Strange_IsObservationMeta = (seriesMeta.Strange_IsString && 
+                    ( 
+                        (seriesMeta.lastIndexOfString * 100) / seriesMeta.totalCount > 99
+                        || (verticalPerspective.Yes * 100) / verticalPerspective.No > 95
+                    )) 
+                    || (seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsNumericProgressionSeries)
+    
+    
+                seriesMeta.Strange_IsObservationData = seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsBoolean == false &&
+                        (
+                            (seriesMeta.uniquePct > 50 ) //if more than 50% are unique values
+                            ||  (seriesMeta.Strange_IsNumericProgressionSeries == false)
+                            ||  (verticalPerspective.No * 100) / horizontalPerspective.Yes > 95
+                        )
+    
+                returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
+            });
 
     // var abc = matrix.getCol(result.data,3);
     // abc = matrix.isSquare(result.data);
