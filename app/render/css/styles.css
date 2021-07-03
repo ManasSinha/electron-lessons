@@ -96,7 +96,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     font-size: 14px;
-    color: white;
+    color: rgb(0, 0, 0);
     white-space: nowrap;
     text-overflow: ellipsis;
     margin: 0; }
