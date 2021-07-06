@@ -118,21 +118,44 @@ exports.callStrange = function (obj) {
         {
             returnArr.push('<br>For Vertical Series : ' + seriesMeta.index);
             var horizontalPerspective = _.countBy(horizontalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.dataSeriesIndex ? 'Yes': 'No';});
-
-            seriesMeta.Strange_IsObservationMeta = (seriesMeta.Strange_IsString && 
-                ( 
-                    (seriesMeta.lastIndexOfString * 100) / seriesMeta.totalCount > 99
-                    || (horizontalPerspective.Yes * 100) / horizontalPerspective.No > 95
-                )) 
-                || (seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsNumericProgressionSeries)
+            seriesMeta.perspectiveObj = horizontalPerspective;
+            seriesMeta.perspective = ( (horizontalPerspective.No == undefined ? 0 :  horizontalPerspective.No) * 100) 
+            / (horizontalPerspective.Yes == undefined ? 0 :  horizontalPerspective.Yes);
 
 
-            seriesMeta.Strange_IsObservationData = seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsBoolean == false &&
+            seriesMeta.Strange_IsObservationMeta = 
+                (seriesMeta.Strange_IsString && 
+                    ( 
+                        (seriesMeta.lastIndexOfString * 100) / seriesMeta.totalCount > 99
+                        || (horizontalPerspective.Yes * 100) / horizontalPerspective.No > 95
+                    )
+                ) 
+                || 
+                (
+                    seriesMeta.Strange_IsNumericSeries &&
+                    seriesMeta.uniquePct < 75 &&
+                    (( (horizontalPerspective.Yes == undefined ? 0 :  horizontalPerspective.Yes) * 100) 
+                                        / (horizontalPerspective.No == undefined ? 0 :  horizontalPerspective.No) > 95)
+                )
+
+
+
+            seriesMeta.Strange_IsObservationData = 
+                    seriesMeta.Strange_IsNumericSeries && 
+                    seriesMeta.Strange_IsBoolean == false &&
+                    seriesMeta.Strange_IsNumericProgressionSeries == false &&
                     (
                         (seriesMeta.uniquePct > 50 ) //if more than 50% are unique values
-                        ||  (seriesMeta.Strange_IsNumericProgressionSeries == false)
-                        ||  (horizontalPerspective.No * 100) / horizontalPerspective.Yes > 95
+                        
+                        ||  (( (horizontalPerspective.No == undefined ? 0 :  horizontalPerspective.No) * 100) 
+                                        / (horizontalPerspective.Yes == undefined ? 0 :  horizontalPerspective.Yes) > 95)
                     )
+
+            console.log('seriesMeta.index', seriesMeta.index);
+            console.log('seriesMeta.uniquePct > 50', seriesMeta.uniquePct > 50)
+            console.log('seriesMeta.Strange_IsNumericProgressionSeries == false', seriesMeta.Strange_IsNumericProgressionSeries == false)
+            console.log('horizontalPerspective', ( (horizontalPerspective.No == undefined ? 0 :  horizontalPerspective.No) * 100) 
+            / (horizontalPerspective.Yes == undefined ? 0 :  horizontalPerspective.Yes) > 95)
 
             returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
         });
@@ -143,29 +166,46 @@ exports.callStrange = function (obj) {
             {
                 returnArr.push('<br>For Horizontal Series : ' + seriesMeta.index + ', which is index of ' + sampleIndex.dataSeriesIndex + ' in full data lake');
                 var verticalPerspective = _.countBy(verticalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.dataSeriesIndex ? 'Yes': 'No';});
-    
-                seriesMeta.Strange_IsObservationMeta = (seriesMeta.Strange_IsString && 
-                    ( 
-                        (seriesMeta.lastIndexOfString * 100) / seriesMeta.totalCount > 99
-                        || (verticalPerspective.Yes * 100) / verticalPerspective.No > 95
-                    )) 
+                seriesMeta.perspectiveObj = verticalPerspective;
+                seriesMeta.Strange_IsObservationMeta = 
+                    (
+                        seriesMeta.Strange_IsString && 
+                        ( 
+                            (seriesMeta.lastIndexOfString * 100) / seriesMeta.totalCount > 99
+                            || (verticalPerspective.Yes * 100) / verticalPerspective.No > 95
+                        )
+                    ) 
                     || (seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsNumericProgressionSeries)
     
     
-                seriesMeta.Strange_IsObservationData = seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsBoolean == false &&
+                seriesMeta.perspective = ( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
+                    / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes);
+
+
+                    // console.log('seriesMeta.uniquePct > 50', seriesMeta.uniquePct > 50)
+                    // console.log('seriesMeta.Strange_IsNumericProgressionSeries == false', seriesMeta.Strange_IsNumericProgressionSeries == false)
+                    // console.log('horizontalPerspective', ( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
+                    // / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes) > 95)
+
+
+
+                seriesMeta.Strange_IsObservationData = 
+                        seriesMeta.Strange_IsNumericSeries == true && 
+                        seriesMeta.Strange_IsNumericProgressionSeries == false &&
+                        seriesMeta.Strange_IsBoolean == false &&
                         (
                             (seriesMeta.uniquePct > 50 ) //if more than 50% are unique values
-                            ||  (seriesMeta.Strange_IsNumericProgressionSeries == false)
-                            ||  (verticalPerspective.No * 100) / horizontalPerspective.Yes > 95
+                            ||  (( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
+                                    / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes) > 95)
                         )
     
                 returnArr= _.flatten([returnArr, reportTheMagic(seriesMeta)]);
             });
 
-    // var abc = matrix.getCol(result.data,3);
-    // abc = matrix.isSquare(result.data);
+    
+
     console.log('verticalSeries', verticalSeries);
-    console.log('horizontalSeries', horizontalSeries);
+    //console.log('horizontalSeries', horizontalSeries);
 
     return returnArr.join('</br>');
 }
@@ -257,9 +297,9 @@ function doSomeMagic(seriesMeta)
 
 
     /* Summary */
-    seriesMeta.Strange_IsBoolean = (seriesMeta.isBoolean.Yes * 100) / seriesMeta.uniqueCount > 95 ? true : false;
-    seriesMeta.Strange_IsString = (seriesMeta.isString.Yes * 100) / seriesMeta.uniqueCount  > 95 ? true : false;
-    seriesMeta.Strange_IsNumericSeries = (seriesMeta.isNumeric.Yes * 100) / seriesMeta.uniqueCount > 95 ? true : false;
+    seriesMeta.Strange_IsBoolean = ((seriesMeta.isBoolean.Yes * 100) / seriesMeta.uniqueCount) > 95 ? true : false;
+    seriesMeta.Strange_IsString = ((seriesMeta.isString.Yes * 100) / seriesMeta.uniqueCount)  > 95 ? true : false;
+    seriesMeta.Strange_IsNumericSeries = ((seriesMeta.isNumeric.Yes * 100) / seriesMeta.uniqueCount) > 95 ? true : false;
     seriesMeta.Strange_IsNumericProgressionSeries = _.max(_.values(seriesMeta.isHavingNumberPattern)) > 90 ? true : false;
     
 

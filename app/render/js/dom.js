@@ -65,7 +65,9 @@ window.analyseFile = function ( itemId ) {
             const fileDetails = document.getElementById( 'fileDetails' );
             fileDetails.innerHTML = "working on it..";
 
-            fileDetails.innerHTML = strange.callStrange(results);
+            var abc = strange.callStrange(results);
+
+            fileDetails.innerHTML = abc;
         }
     });
 
