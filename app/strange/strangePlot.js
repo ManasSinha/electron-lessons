@@ -2,6 +2,9 @@ const matrix = require('numbers').matrix;
 const statistic = require('numbers').statistic;
 const _ = require('underscore');
 const basic = require('numbers').basic;
+const { getJsDateFromExcel } = require("excel-date-to-js");
+const isValidDate = require('pretty-easy-date-check');
+
 
 
 exports.callStrange = function (obj) {
@@ -167,7 +170,12 @@ exports.callStrange = function (obj) {
                 returnArr.push('<br>For Horizontal Series : ' + seriesMeta.index + ', which is index of ' + sampleIndex.dataSeriesIndex + ' in full data lake');
                 var verticalPerspective = _.countBy(verticalSeries, function(obj) {return obj.lastIndexOfString >= seriesMeta.dataSeriesIndex ? 'Yes': 'No';});
                 seriesMeta.perspectiveObj = verticalPerspective;
+                seriesMeta.perspective = ( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
+                    / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes);
+
                 seriesMeta.Strange_IsObservationMeta = 
+                    (seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsNumericProgressionSeries)
+                    ||
                     (
                         seriesMeta.Strange_IsString && 
                         ( 
@@ -175,18 +183,13 @@ exports.callStrange = function (obj) {
                             || (verticalPerspective.Yes * 100) / verticalPerspective.No > 95
                         )
                     ) 
-                    || (seriesMeta.Strange_IsNumericSeries && seriesMeta.Strange_IsNumericProgressionSeries)
-    
-    
-                seriesMeta.perspective = ( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
-                    / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes);
-
-
-                    // console.log('seriesMeta.uniquePct > 50', seriesMeta.uniquePct > 50)
-                    // console.log('seriesMeta.Strange_IsNumericProgressionSeries == false', seriesMeta.Strange_IsNumericProgressionSeries == false)
-                    // console.log('horizontalPerspective', ( (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) * 100) 
-                    // / (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes) > 95)
-
+                    || 
+                    (
+                        seriesMeta.Strange_IsNumericSeries &&
+                        seriesMeta.uniquePct < 75 &&
+                        (( (verticalPerspective.Yes == undefined ? 0 :  verticalPerspective.Yes) * 100) 
+                                            / (verticalPerspective.No == undefined ? 0 :  verticalPerspective.No) > 95)
+                    )
 
 
                 seriesMeta.Strange_IsObservationData = 
@@ -227,7 +230,12 @@ function doSomeMagic(seriesMeta)
     // });
     seriesMeta.isBoolean = _.without(seriesMeta.uniqueEntries, null).length == 2 ? {'Yes': 100, 'No': 0} : {'Yes': 0, 'No': 100}
     seriesMeta.isDate = _.countBy(seriesMeta.uniqueEntries, function (num) {
-        return _.isDate(num) == 1 ? 'Yes' : 'No';
+        return 
+            (
+                _.isDate(num) 
+                || (_.isNumber(num) && isValidDate(getJsDateFromExcel(num)))
+                || isValidDate(getJsDateFromExcel(num))
+            ) ? 'Yes' : 'No';
     });        
     seriesMeta.isNull = _.countBy(seriesMeta.uniqueEntries, function(num) {
         return _.isNull(num) == 1 ? 'Yes': 'No';

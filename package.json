@@ -27,12 +27,14 @@
     "chokidar": "^3.4.3",
     "csvtojson": "^2.0.10",
     "drag-drop": "^6.1.0",
+    "excel-date-to-js": "^1.0.6",
     "fs": "0.0.1-security",
     "fs-extra": "^9.0.1",
     "mathjs": "^9.4.3",
     "numbers": "^0.7.0",
     "open": "^7.3.0",
     "papaparse": "^5.3.1",
+    "pretty-easy-date-check": "^1.2.4",
     "underscore": "^1.13.1"
   }
 }
